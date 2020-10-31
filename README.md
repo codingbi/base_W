@@ -1,2 +1,3 @@
 # readme1
-hello world monye
+Threr are some base function about py, and continue update
+
