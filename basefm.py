@@ -11,6 +11,9 @@ import requests
 import pandas
 from tkinter import *
 import csv
+import numpy
+import pdfplumber
+
 
 def get_url(url):
     global f
@@ -46,7 +49,9 @@ def tocsv()：:
         csv_head=["学校代码", "层次", "专业(类)名称", "首选科目", "再选科目及选考要求", "类中所含专业及代码", "招考方向"]
         csv_write.writerow(csv_head)#写一行，写表头
         csv_write.writerows(jg)#写多行
-
+def do_excel():
+    pandas.DataFrame()
+    
 def main():
 
     
