@@ -1,0 +1,27 @@
+uipath project path is c:\users\current-user\documents\uipath
+uipath.uiautomation.activities package
+uipath xuyao .net 4.8
+prpare rpa
+solution design
+build rpa
+test rpa
+stabilize rpa
+constant improvement
+rule-based 基于规则的
+ctrl+k 新增变量
+
+string methods
+string.concat(value1,value2)
+vlaname.contains("vlaue")
+.format
+.indexof("value") return the first one match
+.join("way",arrys)
+.replace
+.split("way")(index)
+ Split("."c).First.ToString 取第一段并且转换为字符
+.substring(startindex,length)
+Substring(message.LastIndexOf("author")) 去author后面的句子
+message.Split("."c)(1).ToString
+Split(":"c).Last.ToString
+Split(","c).ToList 分割字符串并把分割结果装进列表中
+vbCr is used to go on a new row for each elemen 换行
