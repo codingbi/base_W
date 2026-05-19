@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Download, Search, X, AlertTriangle, TrendingUp, Shield, Bell, CheckCircle, BarChart3, PieChart, LineChart, MapPin, FileText, Edit2, Trash2, ChevronRight } from 'lucide-react';
-import { PieChart as Pie, PieCell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as ReLineChart, Line, Area } from 'recharts';
+import { PieChart as RePieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as ReLineChart, Line, Area } from 'recharts';
 
 const riskTypes = [
   { id: '1', name: '财务风险', description: '资金安全、财务报表真实性', color: '#ef4444' },
@@ -541,25 +541,23 @@ export default function RiskManagementPage() {
                 </h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <Pie>
-                      {riskTypeData.map((entry, index) => (
-                        <PieCell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                      {riskTypeData.map((entry) => (
-                        <Pie
-                          key={entry.name}
-                          data={riskTypeData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={40}
-                          outerRadius={80}
-                          paddingAngle={2}
-                          dataKey="value"
-                          nameKey="name"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        />
-                      ))}
-                    </Pie>
+                    <RePieChart>
+                      <Pie
+                        data={riskTypeData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={80}
+                        dataKey="value"
+                        nameKey="name"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {riskTypeData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RePieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
