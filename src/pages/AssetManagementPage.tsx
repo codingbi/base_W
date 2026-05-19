@@ -57,8 +57,6 @@ const getStatusColor = (status: string) => {
     case '维修中': return 'bg-yellow-100 text-yellow-800';
     case '闲置': return 'bg-gray-100 text-gray-800';
     case '已处置': return 'bg-red-100 text-red-800';
-    case '维修中': return 'bg-yellow-100 text-yellow-800';
-    case '已完工': return 'bg-green-100 text-green-800';
     default: return 'bg-gray-100 text-gray-800';
   }
 };
