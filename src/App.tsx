@@ -11,6 +11,8 @@ import ContractManagementPage from './pages/ContractManagementPage';
 import PerformanceEvaluationPage from './pages/PerformanceEvaluationPage';
 import IncomeExpenseManagementPage from './pages/IncomeExpenseManagementPage';
 import InternalControlPage from './pages/InternalControlPage';
+import RiskManagementPage from './pages/RiskManagementPage';
+import AssetManagementPage from './pages/AssetManagementPage';
 import PlaceholderPage from './components/PlaceholderPage';
 
 export default function App() {
@@ -23,12 +25,7 @@ export default function App() {
       case 'internal-control':
         return <InternalControlPage />;
       case 'risk-management':
-        return (
-          <PlaceholderPage
-            title="风险管理"
-            description="此模块将提供风险识别、风险评估、风险应对策略和风险监控等功能，帮助单位有效管理各类风险。"
-          />
-        );
+        return <RiskManagementPage />;
       case 'budget-management':
         return <BudgetManagementPage />;
       case 'income-management':
@@ -38,12 +35,7 @@ export default function App() {
       case 'procurement-management':
         return <PurchaseManagementPage />;
       case 'asset-management':
-        return (
-          <PlaceholderPage
-            title="资产管理"
-            description="此模块将提供资产台账、资产配置、资产使用和资产处置等功能，实现对行政事业资产的全生命周期管理。"
-          />
-        );
+        return <AssetManagementPage />;
       case 'project-management':
         return <ProjectManagementPage />;
       case 'performance-management':
