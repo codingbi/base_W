@@ -10,6 +10,7 @@ import PurchaseManagementPage from './pages/PurchaseManagementPage';
 import ContractManagementPage from './pages/ContractManagementPage';
 import PerformanceEvaluationPage from './pages/PerformanceEvaluationPage';
 import IncomeExpenseManagementPage from './pages/IncomeExpenseManagementPage';
+import InternalControlPage from './pages/InternalControlPage';
 import PlaceholderPage from './components/PlaceholderPage';
 
 export default function App() {
@@ -20,12 +21,7 @@ export default function App() {
       case 'portal':
         return <PortalPage />;
       case 'internal-control':
-        return (
-          <PlaceholderPage
-            title="单位层面内控"
-            description="此模块将提供组织架构管理、内控流程设计、沟通协调机制等功能，帮助单位建立全面的内部控制体系。"
-          />
-        );
+        return <InternalControlPage />;
       case 'risk-management':
         return (
           <PlaceholderPage
