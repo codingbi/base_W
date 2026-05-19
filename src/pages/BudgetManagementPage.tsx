@@ -1155,4 +1155,64 @@ export default function BudgetManagementPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">申报金额 <span className="text-red-500">*</span
+                <label className="block text-sm font-medium text-gray-700 mb-1">申报金额 <span className="text-red-500">*</span></label>
+                <input
+                  type="number"
+                  value={budgetForm.amount}
+                  onChange={(e) => setBudgetForm({ ...budgetForm, amount: Number(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="输入申报金额"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                <textarea
+                  value={budgetForm.remark}
+                  onChange={(e) => setBudgetForm({ ...budgetForm, remark: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="输入备注信息"
+                />
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <AlertCircle size={16} className="text-yellow-600 mt-0.5" />
+                  <div className="text-sm text-yellow-800">
+                    <p className="font-medium">注意事项：</p>
+                    <ul className="list-disc list-inside mt-1 space-y-1">
+                      <li>创收收入预算明细表只有继续教育学院和对外交流及规划处这两个部门能申报</li>
+                      <li>其他部门只能填写创收支出预算</li>
+                      <li>如有财务回退，请查看明细表批复备注，修改后重新提交</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={() => setShowModal(null)} className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+                  取消
+                </button>
+                <button 
+                  onClick={() => setShowModal(null)}
+                  className="flex-1 px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  保存待发
+                </button>
+                <button 
+                  onClick={() => setShowModal(null)}
+                  className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Send size={16} />
+                  发送
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
