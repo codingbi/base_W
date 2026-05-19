@@ -1,4 +1,4 @@
-import type { ApiResponse, DashboardStats, Project, Budget, Contract, Expense, Risk, Asset, PerformanceMetric } from '../../shared/types';
+import type { ApiResponse, DashboardStats, Project, ProjectType, Budget, IncomeBudget, Contract, ContractTemplate, Expense, Risk, Asset, PerformanceMetric, PurchaseType, PurchaseIntention, PurchaseApplication, Account, IncomeRecord, PreApplication, PerformanceEvaluation } from '../../shared/types';
 
 const API_BASE = '/api';
 
@@ -19,29 +19,25 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // 仪表盘
   getDashboardStats: () => request<ApiResponse<DashboardStats>>('/dashboard'),
-  
-  // 项目
   getProjects: () => request<ApiResponse<Project[]>>('/projects'),
-  
-  // 预算
+  getProjectTypes: () => request<ApiResponse<ProjectType[]>>('/project-types'),
+  completeProject: (id: string) => request<ApiResponse<Project>>(`/projects/${id}/complete`, { method: 'POST' }),
   getBudgets: () => request<ApiResponse<Budget[]>>('/budgets'),
-  
-  // 合同
+  getIncomeBudgets: () => request<ApiResponse<IncomeBudget[]>>('/income-budgets'),
   getContracts: () => request<ApiResponse<Contract[]>>('/contracts'),
-  
-  // 支出
+  getContractTemplates: () => request<ApiResponse<ContractTemplate[]>>('/contract-templates'),
   getExpenses: () => request<ApiResponse<Expense[]>>('/expenses'),
   approveExpense: (id: string) => request<ApiResponse<Expense>>(`/expenses/${id}/approve`, { method: 'POST' }),
   rejectExpense: (id: string) => request<ApiResponse<Expense>>(`/expenses/${id}/reject`, { method: 'POST' }),
-  
-  // 风险
   getRisks: () => request<ApiResponse<Risk[]>>('/risks'),
-  
-  // 资产
   getAssets: () => request<ApiResponse<Asset[]>>('/assets'),
-  
-  // 绩效
-  getPerformance: () => request<ApiResponse<PerformanceMetric[]>>('/performance'),
+  getPerformanceMetrics: () => request<ApiResponse<PerformanceMetric[]>>('/performance'),
+  getPurchaseTypes: () => request<ApiResponse<PurchaseType[]>>('/purchase-types'),
+  getPurchaseIntentions: () => request<ApiResponse<PurchaseIntention[]>>('/purchase-intentions'),
+  getPurchaseApplications: () => request<ApiResponse<PurchaseApplication[]>>('/purchase-applications'),
+  getAccounts: () => request<ApiResponse<Account[]>>('/accounts'),
+  getIncomeRecords: () => request<ApiResponse<IncomeRecord[]>>('/income-records'),
+  getPreApplications: () => request<ApiResponse<PreApplication[]>>('/pre-applications'),
+  getPerformanceEvaluations: () => request<ApiResponse<PerformanceEvaluation[]>>('/performance-evaluations'),
 };

@@ -1,11 +1,9 @@
-// 通用响应类型
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
 }
 
-// 统计数据类型
 export interface DashboardStats {
   pendingTasks: number;
   budgetUsed: number;
@@ -13,7 +11,6 @@ export interface DashboardStats {
   contractsActive: number;
 }
 
-// 用户类型
 export interface User {
   id: string;
   name: string;
@@ -21,20 +18,54 @@ export interface User {
   department: string;
 }
 
-// 项目类型
+export interface ProjectType {
+  id: string;
+  name: string;
+  parentId?: string;
+  level: number;
+  attributes: string[];
+}
+
+export interface ProjectPhase {
+  id: string;
+  name: string;
+  projectId: string;
+  startDate: string;
+  endDate: string;
+  progress: number;
+  tasks: ProjectTask[];
+}
+
+export interface ProjectTask {
+  id: string;
+  name: string;
+  phaseId: string;
+  assignee: string;
+  plannedTime: string;
+  actualTime?: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  deliverables: string[];
+}
+
 export interface Project {
   id: string;
   name: string;
+  code: string;
   department: string;
+  responsibleDepartment: string;
+  priority: 'high' | 'medium' | 'low';
   budget: number;
   usedBudget: number;
   progress: number;
   status: 'planning' | 'active' | 'completed';
   startDate: string;
   endDate: string;
+  typeId: string;
+  typeName: string;
+  phases: ProjectPhase[];
+  annual: string;
 }
 
-// 预算类型
 export interface Budget {
   id: string;
   category: string;
@@ -44,7 +75,15 @@ export interface Budget {
   period: string;
 }
 
-// 合同类型
+export interface IncomeBudget {
+  id: string;
+  type: string;
+  amount: number;
+  department: string;
+  status: 'draft' | 'submitted' | 'approved';
+  period: string;
+}
+
 export interface Contract {
   id: string;
   name: string;
@@ -54,9 +93,21 @@ export interface Contract {
   startDate: string;
   endDate: string;
   status: 'draft' | 'active' | 'expired';
+  templateId: string;
+  performanceBond: number;
+  warrantyBond: number;
+  paidAmount: number;
+  paymentSchedule: PaymentSchedule[];
 }
 
-// 支出类型
+export interface PaymentSchedule {
+  id: string;
+  contractId: string;
+  dueDate: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+}
+
 export interface Expense {
   id: string;
   title: string;
@@ -67,7 +118,6 @@ export interface Expense {
   applicant: string;
 }
 
-// 风险类型
 export interface Risk {
   id: string;
   title: string;
@@ -77,7 +127,6 @@ export interface Risk {
   status: 'identified' | 'mitigating' | 'resolved';
 }
 
-// 资产类型
 export interface Asset {
   id: string;
   name: string;
@@ -88,7 +137,6 @@ export interface Asset {
   department: string;
 }
 
-// 绩效指标类型
 export interface PerformanceMetric {
   id: string;
   name: string;
@@ -98,14 +146,107 @@ export interface PerformanceMetric {
   period: string;
 }
 
-// 数据存储类型
+export interface PurchaseType {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+}
+
+export interface PurchaseIntention {
+  id: string;
+  projectId: string;
+  projectName: string;
+  budgetAmount: number;
+  description: string;
+  expectedDate: string;
+  status: 'draft' | 'approved' | 'published';
+  publishUrl?: string;
+  publishDate?: string;
+}
+
+export interface PurchaseApplication {
+  id: string;
+  intentionId: string;
+  projectId: string;
+  typeId: string;
+  method: string;
+  estimatedAmount: number;
+  status: 'draft' | 'submitted' | 'approved' | 'rejected';
+  createTime: string;
+}
+
+export interface PaymentRequest {
+  id: string;
+  expenseId: string;
+  amount: number;
+  method: string;
+  status: 'pending' | 'approved' | 'paid';
+}
+
+export interface ContractTemplate {
+  id: string;
+  name: string;
+  type: string;
+  content: string;
+}
+
+export interface Account {
+  id: string;
+  name: string;
+  type: string;
+  bank: string;
+  accountNumber: string;
+}
+
+export interface IncomeRecord {
+  id: string;
+  budgetId: string;
+  amount: number;
+  accountId: string;
+  date: string;
+  status: 'draft' | 'approved';
+}
+
+export interface PreApplication {
+  id: string;
+  applicant: string;
+  reason: string;
+  amount: number;
+  type: string;
+  status: 'pending' | 'approved' | 'rejected' | 'canceled';
+  createTime: string;
+}
+
+export interface PerformanceEvaluation {
+  id: string;
+  projectId: string;
+  projectName: string;
+  selfEvaluation: string;
+  deviation: string;
+  deviationReason: string;
+  supportingMaterials: string[];
+  period: string;
+  status: 'draft' | 'submitted' | 'reviewed';
+}
+
 export interface DataStore {
   users: User[];
+  projectTypes: ProjectType[];
   projects: Project[];
   budgets: Budget[];
+  incomeBudgets: IncomeBudget[];
   contracts: Contract[];
   expenses: Expense[];
   risks: Risk[];
   assets: Asset[];
   performanceMetrics: PerformanceMetric[];
+  purchaseTypes: PurchaseType[];
+  purchaseIntentions: PurchaseIntention[];
+  purchaseApplications: PurchaseApplication[];
+  contractTemplates: ContractTemplate[];
+  accounts: Account[];
+  incomeRecords: IncomeRecord[];
+  preApplications: PreApplication[];
+  performanceEvaluations: PerformanceEvaluation[];
 }

@@ -4,7 +4,6 @@ import type { ApiResponse, DashboardStats } from '../../shared/types';
 
 const router = Router();
 
-// 获取仪表盘统计数据
 router.get('/dashboard', (req, res) => {
   const data = getData();
   const stats: DashboardStats = {
@@ -18,56 +17,48 @@ router.get('/dashboard', (req, res) => {
   res.json(response);
 });
 
-// 获取项目列表
 router.get('/projects', (req, res) => {
   const data = getData();
   const response: ApiResponse<any> = { success: true, data: data.projects };
   res.json(response);
 });
 
-// 获取预算列表
+router.get('/project-types', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.projectTypes };
+  res.json(response);
+});
+
 router.get('/budgets', (req, res) => {
   const data = getData();
   const response: ApiResponse<any> = { success: true, data: data.budgets };
   res.json(response);
 });
 
-// 获取合同列表
+router.get('/income-budgets', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.incomeBudgets };
+  res.json(response);
+});
+
 router.get('/contracts', (req, res) => {
   const data = getData();
   const response: ApiResponse<any> = { success: true, data: data.contracts };
   res.json(response);
 });
 
-// 获取支出列表
+router.get('/contract-templates', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.contractTemplates };
+  res.json(response);
+});
+
 router.get('/expenses', (req, res) => {
   const data = getData();
   const response: ApiResponse<any> = { success: true, data: data.expenses };
   res.json(response);
 });
 
-// 获取风险列表
-router.get('/risks', (req, res) => {
-  const data = getData();
-  const response: ApiResponse<any> = { success: true, data: data.risks };
-  res.json(response);
-});
-
-// 获取资产列表
-router.get('/assets', (req, res) => {
-  const data = getData();
-  const response: ApiResponse<any> = { success: true, data: data.assets };
-  res.json(response);
-});
-
-// 获取绩效指标
-router.get('/performance', (req, res) => {
-  const data = getData();
-  const response: ApiResponse<any> = { success: true, data: data.performanceMetrics };
-  res.json(response);
-});
-
-// 审批支出
 router.post('/expenses/:id/approve', (req, res) => {
   const data = getData();
   const expenseId = req.params.id;
@@ -84,7 +75,6 @@ router.post('/expenses/:id/approve', (req, res) => {
   }
 });
 
-// 拒绝支出
 router.post('/expenses/:id/reject', (req, res) => {
   const data = getData();
   const expenseId = req.params.id;
@@ -97,6 +87,83 @@ router.post('/expenses/:id/reject', (req, res) => {
     res.json(response);
   } else {
     const response: ApiResponse<any> = { success: false, data: null, message: '支出记录不存在' };
+    res.status(404).json(response);
+  }
+});
+
+router.get('/risks', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.risks };
+  res.json(response);
+});
+
+router.get('/assets', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.assets };
+  res.json(response);
+});
+
+router.get('/performance', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.performanceMetrics };
+  res.json(response);
+});
+
+router.get('/purchase-types', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.purchaseTypes };
+  res.json(response);
+});
+
+router.get('/purchase-intentions', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.purchaseIntentions };
+  res.json(response);
+});
+
+router.get('/purchase-applications', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.purchaseApplications };
+  res.json(response);
+});
+
+router.get('/accounts', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.accounts };
+  res.json(response);
+});
+
+router.get('/income-records', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.incomeRecords };
+  res.json(response);
+});
+
+router.get('/pre-applications', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.preApplications };
+  res.json(response);
+});
+
+router.get('/performance-evaluations', (req, res) => {
+  const data = getData();
+  const response: ApiResponse<any> = { success: true, data: data.performanceEvaluations };
+  res.json(response);
+});
+
+router.post('/projects/:id/complete', (req, res) => {
+  const data = getData();
+  const projectId = req.params.id;
+  const projectIndex = data.projects.findIndex(p => p.id === projectId);
+  
+  if (projectIndex !== -1) {
+    data.projects[projectIndex].status = 'completed';
+    data.projects[projectIndex].progress = 100;
+    updateData({ projects: data.projects });
+    const response: ApiResponse<any> = { success: true, data: data.projects[projectIndex], message: '项目已完成' };
+    res.json(response);
+  } else {
+    const response: ApiResponse<any> = { success: false, data: null, message: '项目不存在' };
     res.status(404).json(response);
   }
 });

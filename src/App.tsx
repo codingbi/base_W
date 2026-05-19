@@ -6,6 +6,10 @@ import PortalPage from './pages/PortalPage';
 import BudgetManagementPage from './pages/BudgetManagementPage';
 import ExpenseManagementPage from './pages/ExpenseManagementPage';
 import ProjectManagementPage from './pages/ProjectManagementPage';
+import PurchaseManagementPage from './pages/PurchaseManagementPage';
+import ContractManagementPage from './pages/ContractManagementPage';
+import PerformanceEvaluationPage from './pages/PerformanceEvaluationPage';
+import IncomeExpenseManagementPage from './pages/IncomeExpenseManagementPage';
 import PlaceholderPage from './components/PlaceholderPage';
 
 export default function App() {
@@ -32,21 +36,11 @@ export default function App() {
       case 'budget-management':
         return <BudgetManagementPage />;
       case 'income-management':
-        return (
-          <PlaceholderPage
-            title="收入管理"
-            description="此模块将提供收入登记、收入确认、收入分析和票据管理等功能，实现对单位收入的全面管理。"
-          />
-        );
+        return <IncomeExpenseManagementPage />;
       case 'expense-management':
         return <ExpenseManagementPage />;
       case 'procurement-management':
-        return (
-          <PlaceholderPage
-            title="采购管理"
-            description="此模块将提供采购预算、采购计划、采购申请和采购执行等功能，实现对政府采购业务的规范管理。"
-          />
-        );
+        return <PurchaseManagementPage />;
       case 'asset-management':
         return (
           <PlaceholderPage
@@ -57,19 +51,9 @@ export default function App() {
       case 'project-management':
         return <ProjectManagementPage />;
       case 'performance-management':
-        return (
-          <PlaceholderPage
-            title="绩效管理"
-            description="此模块将提供绩效指标、绩效评估、绩效报告和绩效分析等功能，帮助单位提升工作效能。"
-          />
-        );
+        return <PerformanceEvaluationPage />;
       case 'contract-management':
-        return (
-          <PlaceholderPage
-            title="合同管理"
-            description="此模块将提供合同签订、合同履行、合同变更和合同归档等功能，加强合同业务的法律风险防范。"
-          />
-        );
+        return <ContractManagementPage />;
       case 'bi-reports':
         return (
           <PlaceholderPage
