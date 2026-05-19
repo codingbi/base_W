@@ -13,6 +13,7 @@ import IncomeExpenseManagementPage from './pages/IncomeExpenseManagementPage';
 import InternalControlPage from './pages/InternalControlPage';
 import RiskManagementPage from './pages/RiskManagementPage';
 import AssetManagementPage from './pages/AssetManagementPage';
+import BiReportsPage from './pages/BiReportsPage';
 import PlaceholderPage from './components/PlaceholderPage';
 
 export default function App() {
@@ -43,12 +44,7 @@ export default function App() {
       case 'contract-management':
         return <ContractManagementPage />;
       case 'bi-reports':
-        return (
-          <PlaceholderPage
-            title="BI报表决策分析"
-            description="此模块将提供数据大屏、多维分析、报表定制和数据导出等功能，为决策提供数据支持。"
-          />
-        );
+        return <BiReportsPage />;
       case 'mobile-app':
         return (
           <PlaceholderPage
