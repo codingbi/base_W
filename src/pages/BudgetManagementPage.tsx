@@ -1,26 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Download, Upload, Filter, Search, RefreshCw, X } from 'lucide-react';
+import { Plus, Download, Upload, Filter, Search, RefreshCw, X, Send, Save, FileText, Printer, ChevronRight, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAppStore } from '../store';
 import { api } from '../lib/api';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
 
+// 模拟数据
+const projectNames = [
+  { id: '1', code: 'XM-001', level1: '教学科研', level2: '教学改革', level3: '课程建设', department: '教务处', status: 'approved' },
+  { id: '2', code: 'XM-002', level1: '教学科研', level2: '科学研究', level3: '科研项目', department: '科研处', status: 'approved' },
+  { id: '3', code: 'XM-003', level1: '学生工作', level2: '学生活动', level3: '', department: '学工部', status: 'pending' },
+];
+
+const budgetNotifications = [
+  { id: '1', year: '2024', title: '2024年度预算编制通知', status: 'published' },
+  { id: '2', year: '2023', title: '2023年度预算编制通知', status: 'closed' },
+];
+
+const revenueBudgetData = [
+  { id: '1', code: 'SR-2024-001', project: '教学科研', income: 500000, expense: 300000, status: 'approved', year: '2024', department: '继续教育学院' },
+  { id: '2', code: 'SR-2024-002', project: '培训服务', income: 300000, expense: 200000, status: 'pending', year: '2024', department: '对外交流及规划处' },
+];
+
+const budgetDeclarationData = [
+  { id: '1', code: 'YS-2024-001', project: '教学科研', level1: '教学科研', level2: '教学改革', level3: '课程建设', amount: 500000, status: 'pending', year: '2024', department: '教务处' },
+  { id: '2', code: 'YS-2024-002', project: '学生工作', level1: '学生工作', level2: '学生活动', level3: '', amount: 200000, status: 'approved', year: '2024', department: '学工部' },
+];
+
 export default function BudgetManagementPage() {
   const { budgets, incomeBudgets, setBudgets, setIncomeBudgets, loading, setLoading } = useAppStore();
-  const [activeTab, setActiveTab] = useState('expense');
+  const [activeTab, setActiveTab] = useState('projectLibrary');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showImportModal, setShowImportModal] = useState<string | false>(false);
-  const [newIncomeBudget, setNewIncomeBudget] = useState({
-    type: '',
-    amount: 0,
-    department: '',
-    period: new Date().getFullYear().toString() + '年度',
+  const [showModal, setShowModal] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState('2024');
+
+  // 表单状态
+  const [projectForm, setProjectForm] = useState({
+    level1: '',
+    level2: '',
+    level3: '',
   });
-  const [adjustRequest, setAdjustRequest] = useState({
-    type: '',
+  const [revenueForm, setRevenueForm] = useState({
+    project: '',
+    level1: '',
+    level2: '',
+    level3: '',
+    income: 0,
+    expense: 0,
+    remark: '',
+  });
+  const [budgetForm, setBudgetForm] = useState({
+    project: '',
+    level1: '',
+    level2: '',
+    level3: '',
     amount: 0,
-    reason: '',
+    remark: '',
   });
 
   useEffect(() => {
@@ -54,17 +90,21 @@ export default function BudgetManagementPage() {
     value: ib.amount,
   }));
 
-  const filteredBudgets = budgets.filter(b =>
-    b.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
         return 'bg-green-100 text-green-800';
       case 'submitted':
+        return 'bg-blue-100 text-blue-800';
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'published':
+        return 'bg-blue-100 text-blue-800';
+      case 'closed':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -77,26 +117,19 @@ export default function BudgetManagementPage() {
         return '已审批';
       case 'submitted':
         return '已提交';
+      case 'pending':
+        return '审批中';
       case 'draft':
         return '草稿';
+      case 'rejected':
+        return '已退回';
+      case 'published':
+        return '已发布';
+      case 'closed':
+        return '已关闭';
       default:
         return '未知';
     }
-  };
-
-  const handleAddIncomeBudget = () => {
-    const newBudget = {
-      id: Date.now().toString(),
-      ...newIncomeBudget,
-      status: 'draft' as const,
-    };
-    setIncomeBudgets([...incomeBudgets, newBudget]);
-    setNewIncomeBudget({
-      type: '',
-      amount: 0,
-      department: '',
-      period: new Date().getFullYear().toString() + '年度',
-    });
   };
 
   const totalIncome = incomeBudgets.reduce((sum, ib) => sum + ib.amount, 0);
@@ -116,10 +149,6 @@ export default function BudgetManagementPage() {
             <Download size={18} />
             导出报表
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <Plus size={18} />
-            新增预算
-          </button>
         </div>
       </div>
 
@@ -138,12 +167,28 @@ export default function BudgetManagementPage() {
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <p className="text-sm text-gray-500">执行率</p>
-          <p className="text-2xl font-bold text-purple-600 mt-2">{Math.round((totalUsed / totalExpense) * 100)}%</p>
+          <p className="text-2xl font-bold text-purple-600 mt-2">{totalExpense > 0 ? Math.round((totalUsed / totalExpense) * 100) : 0}%</p>
         </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="flex border-b border-gray-100 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('projectLibrary')}
+            className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
+              activeTab === 'projectLibrary' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            项目名称库
+          </button>
+          <button
+            onClick={() => setActiveTab('budgetDeclaration')}
+            className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
+              activeTab === 'budgetDeclaration' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            预算申报
+          </button>
           <button
             onClick={() => setActiveTab('expense')}
             className={`px-6 py-4 font-medium transition-colors whitespace-nowrap ${
@@ -186,6 +231,193 @@ export default function BudgetManagementPage() {
           </button>
         </div>
 
+        {/* 项目名称库 */}
+        {activeTab === 'projectLibrary' && (
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">项目名称库</h3>
+              <button 
+                onClick={() => setShowModal('addProject')}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <Plus size={18} />
+                新增项目名称
+              </button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">项目编码</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">一级项目</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">二级项目</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">三级项目</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申报部门</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {projectNames.map((project) => (
+                    <tr key={project.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{project.code}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{project.level1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.level2 || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.level3 || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.department}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                          {getStatusText(project.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 预算申报 */}
+        {activeTab === 'budgetDeclaration' && (
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="bg-blue-50 rounded-xl p-6 cursor-pointer hover:bg-blue-100 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                    <FileText size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">创收预算申报</h4>
+                    <p className="text-sm text-gray-600">申报创收收入和支出预算</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowModal('revenueBudget')}
+                  className="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  打开申报表
+                </button>
+              </div>
+
+              <div className="bg-green-50 rounded-xl p-6 cursor-pointer hover:bg-green-100 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+                    <FileText size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">预算申报表</h4>
+                    <p className="text-sm text-gray-600">申报年度预算项目</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowModal('budgetDeclaration')}
+                  className="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  打开申报表
+                </button>
+              </div>
+            </div>
+
+            {/* 创收预算申报列表 */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">创收预算申报记录</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申报编码</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">项目名称</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">收入金额</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">支出金额</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申报部门</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {revenueBudgetData.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.code}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.project}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥{item.income.toLocaleString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥{item.expense.toLocaleString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.department}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                            {getStatusText(item.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button className="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                          {item.status === 'approved' && (
+                            <button className="text-green-600 hover:text-green-800 flex items-center gap-1">
+                              <Printer size={14} />
+                              打印
+                            </button>
+                          )}
+                          {item.status === 'rejected' && (
+                            <button className="text-orange-600 hover:text-orange-800">重新提交</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 预算申报列表 */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">预算申报记录</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申报编码</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">项目名称</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">一级项目</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">二级项目</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申报金额</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {budgetDeclarationData.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.code}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.project}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.level1}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.level2}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥{item.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                            {getStatusText(item.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button className="text-blue-600 hover:text-blue-800 mr-3">查看</button>
+                          {item.status === 'approved' && (
+                            <button className="text-green-600 hover:text-green-800 flex items-center gap-1">
+                              <Printer size={14} />
+                              打印
+                            </button>
+                          )}
+                          {item.status === 'rejected' && (
+                            <button className="text-orange-600 hover:text-orange-800">重新提交</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 支出预算汇总 */}
         {activeTab === 'expense' && (
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -265,7 +497,7 @@ export default function BudgetManagementPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredBudgets.map((budget) => {
+                    {budgets.map((budget) => {
                       const rate = (budget.used / budget.allocated * 100);
                       return (
                         <tr key={budget.id} className="hover:bg-gray-50">
@@ -299,16 +531,9 @@ export default function BudgetManagementPage() {
           </div>
         )}
 
+        {/* 收入预算管理 */}
         {activeTab === 'income' && (
           <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">收入预算编制</h3>
-              <button onClick={() => setShowImportModal('income')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                <Plus size={18} />
-                新增收入预算
-              </button>
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">收入预算分布</h4>
@@ -321,7 +546,6 @@ export default function BudgetManagementPage() {
                         cy="50%"
                         innerRadius={40}
                         outerRadius={80}
-                        paddingAngle={2}
                         dataKey="value"
                         label={({ name, percent }) => `${name}: ¥${(percent * totalIncome / 10000).toFixed(1)}万`}
                       >
@@ -375,6 +599,7 @@ export default function BudgetManagementPage() {
           </div>
         )}
 
+        {/* 预算分解与导入 */}
         {activeTab === 'decompose' && (
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -468,6 +693,7 @@ export default function BudgetManagementPage() {
           </div>
         )}
 
+        {/* 预算查询 */}
         {activeTab === 'query' && (
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -559,54 +785,47 @@ export default function BudgetManagementPage() {
           </div>
         )}
 
+        {/* 预算调整 */}
         {activeTab === 'adjust' && (
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 bg-gray-50 rounded-xl p-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">预算调整申请</h4>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">调整类型</label>
-                      <select
-                        value={adjustRequest.type}
-                        onChange={(e) => setAdjustRequest({ ...adjustRequest, type: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">请选择调整类型</option>
-                        <option value="追加">项目间追加预算</option>
-                        <option value="调减">项目间调减预算</option>
-                        <option value="special">特殊项目增加预算</option>
-                        <option value="advance">垫支预算调整</option>
-                        <option value="writeoff">核销金额调减</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">金额</label>
-                      <input
-                        type="number"
-                        value={adjustRequest.amount}
-                        onChange={(e) => setAdjustRequest({ ...adjustRequest, amount: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="输入调整金额"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">调整类型</label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">请选择调整类型</option>
+                      <option value="追加">项目间追加预算</option>
+                      <option value="调减">项目间调减预算</option>
+                      <option value="special">特殊项目增加预算</option>
+                      <option value="advance">垫支预算调整</option>
+                      <option value="writeoff">核销金额调减</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">金额</label>
+                    <input
+                      type="number"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="输入调整金额"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">调整原因</label>
                     <textarea
-                      value={adjustRequest.reason}
-                      onChange={(e) => setAdjustRequest({ ...adjustRequest, reason: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       rows={3}
                       placeholder="请输入调整原因..."
                     />
                   </div>
                   <div className="flex gap-3">
-                    <button className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+                    <button className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 flex items-center justify-center gap-2">
+                      <Save size={16} />
                       保存草稿
                     </button>
-                    <button className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                    <button className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
+                      <Send size={16} />
                       提交审批
                     </button>
                   </div>
@@ -664,65 +883,276 @@ export default function BudgetManagementPage() {
         )}
       </div>
 
-      {showImportModal === 'income' && (
+      {/* 新增项目名称模态框 */}
+      {showModal === 'addProject' && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">新增收入预算</h3>
-              <button onClick={() => setShowImportModal(false)} className="text-gray-500 hover:text-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900">新增项目名称</h3>
+              <button onClick={() => setShowModal(null)} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">收入类型</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">一级项目名称 <span className="text-red-500">*</span></label>
                 <select
-                  value={newIncomeBudget.type}
-                  onChange={(e) => setNewIncomeBudget({ ...newIncomeBudget, type: e.target.value })}
+                  value={projectForm.level1}
+                  onChange={(e) => setProjectForm({ ...projectForm, level1: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">请选择收入类型</option>
-                  <option value="财政拨款收入">财政拨款收入</option>
-                  <option value="事业收入">事业收入</option>
-                  <option value="其他收入">其他收入</option>
-                  <option value="财政专户管理资金预算收入">财政专户管理资金预算收入</option>
-                  <option value="上级补助预算收入">上级补助预算收入</option>
+                  <option value="">请选择一级项目</option>
+                  <option value="教学科研">教学科研</option>
+                  <option value="学生工作">学生工作</option>
+                  <option value="行政管理">行政管理</option>
+                  <option value="后勤保障">后勤保障</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">金额</label>
-                  <input
-                    type="number"
-                    value={newIncomeBudget.amount}
-                    onChange={(e) => setNewIncomeBudget({ ...newIncomeBudget, amount: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="输入金额"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">申报部门</label>
-                  <input
-                    type="text"
-                    value={newIncomeBudget.department}
-                    onChange={(e) => setNewIncomeBudget({ ...newIncomeBudget, department: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="输入部门"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">二级项目名称</label>
+                <input
+                  type="text"
+                  value={projectForm.level2}
+                  onChange={(e) => setProjectForm({ ...projectForm, level2: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="输入二级项目名称"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">三级项目名称</label>
+                <input
+                  type="text"
+                  value={projectForm.level3}
+                  onChange={(e) => setProjectForm({ ...projectForm, level3: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="输入三级项目名称（可选）"
+                />
               </div>
               <div className="flex gap-3">
-                <button onClick={() => setShowImportModal(false)} className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+                <button onClick={() => setShowModal(null)} className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
                   取消
                 </button>
-                <button onClick={handleAddIncomeBudget} className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                  保存
+                <button 
+                  onClick={() => setShowModal(null)}
+                  className="flex-1 px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  保存待发
+                </button>
+                <button 
+                  onClick={() => setShowModal(null)}
+                  className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Send size={16} />
+                  发送
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
+
+      {/* 创收预算申报模态框 */}
+      {showModal === 'revenueBudget' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl my-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">创收预算申报表</h3>
+              <button onClick={() => setShowModal(null)} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700">预算年度</label>
+                <div className="flex items-center gap-2 flex-1">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {budgetNotifications.map((n) => (
+                      <option key={n.id} value={n.year}>{n.title}</option>
+                    ))}
+                  </select>
+                  <button className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 flex items-center gap-1">
+                    <Calendar size={16} />
+                    选择通知
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">一级项目名称 <span className="text-red-500">*</span></label>
+                <select
+                  value={revenueForm.level1}
+                  onChange={(e) => setRevenueForm({ ...revenueForm, level1: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">请选择一级项目</option>
+                  {projectNames.map((p) => (
+                    <option key={p.id} value={p.level1}>{p.level1}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">二级项目名称</label>
+                <select
+                  value={revenueForm.level2}
+                  onChange={(e) => setRevenueForm({ ...revenueForm, level2: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">请选择二级项目</option>
+                  {projectNames.filter(p => p.level2).map((p) => (
+                    <option key={p.id} value={p.level2}>{p.level2}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">三级项目名称</label>
+                <select
+                  value={revenueForm.level3}
+                  onChange={(e) => setRevenueForm({ ...revenueForm, level3: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">请选择三级项目</option>
+                  {projectNames.filter(p => p.level3).map((p) => (
+                    <option key={p.id} value={p.level3}>{p.level3}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">创收收入预算金额</label>
+                  <input
+                    type="number"
+                    value={revenueForm.income}
+                    onChange={(e) => setRevenueForm({ ...revenueForm, income: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="输入收入金额"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">创收支出预算金额</label>
+                  <input
+                    type="number"
+                    value={revenueForm.expense}
+                    onChange={(e) => setRevenueForm({ ...revenueForm, expense: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="输入支出金额"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                <textarea
+                  value={revenueForm.remark}
+                  onChange={(e) => setRevenueForm({ ...revenueForm, remark: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="输入备注信息"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={() => setShowModal(null)} className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+                  取消
+                </button>
+                <button 
+                  onClick={() => setShowModal(null)}
+                  className="flex-1 px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  保存待发
+                </button>
+                <button 
+                  onClick={() => setShowModal(null)}
+                  className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Send size={16} />
+                  发送
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 预算申报模态框 */}
+      {showModal === 'budgetDeclaration' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl my-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">预算申报表</h3>
+              <button onClick={() => setShowModal(null)} className="text-gray-500 hover:text-gray-700">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700">预算年度</label>
+                <div className="flex items-center gap-2 flex-1">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {budgetNotifications.map((n) => (
+                      <option key={n.id} value={n.year}>{n.title}</option>
+                    ))}
+                  </select>
+                  <button className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 flex items-center gap-1">
+                    <Calendar size={16} />
+                    选择通知
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">一级项目名称 <span className="text-red-500">*</span></label>
+                <select
+                  value={budgetForm.level1}
+                  onChange={(e) => setBudgetForm({ ...budgetForm, level1: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">请选择一级项目</option>
+                  {projectNames.map((p) => (
+                    <option key={p.id} value={p.level1}>{p.level1}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">二级项目名称</label>
+                <select
+                  value={budgetForm.level2}
+                  onChange={(e) => setBudgetForm({ ...budgetForm, level2: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">请选择二级项目</option>
+                  {projectNames.filter(p => p.level2).map((p) => (
+                    <option key={p.id} value={p.level2}>{p.level2}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">三级项目名称</label>
+                <select
+                  value={budgetForm.level3}
+                  onChange={(e) => setBudgetForm({ ...budgetForm, level3: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">请选择三级项目</option>
+                  {projectNames.filter(p => p.level3).map((p) => (
+                    <option key={p.id} value={p.level3}>{p.level3}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">申报金额 <span className="text-red-500">*</span
