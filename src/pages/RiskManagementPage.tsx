@@ -74,6 +74,28 @@ const riskTypeData = [
   { name: '技术风险', value: 1, color: '#3b82f6' },
 ];
 
+const riskTypeDistributionData = [
+  { type: '财务风险', color: '#ef4444', x: 75, y: 20, count: 4 },
+  { type: '财务风险', color: '#ef4444', x: 82, y: 35, count: 3 },
+  { type: '财务风险', color: '#ef4444', x: 68, y: 28, count: 2 },
+  { type: '财务风险', color: '#ef4444', x: 90, y: 45, count: 1 },
+  
+  { type: '运营风险', color: '#f97316', x: 55, y: 55, count: 5 },
+  { type: '运营风险', color: '#f97316', x: 62, y: 48, count: 4 },
+  { type: '运营风险', color: '#f97316', x: 48, y: 62, count: 3 },
+  { type: '运营风险', color: '#f97316', x: 70, y: 42, count: 2 },
+  { type: '运营风险', color: '#f97316', x: 45, y: 70, count: 1 },
+  
+  { type: '合规风险', color: '#eab308', x: 30, y: 40, count: 3 },
+  { type: '合规风险', color: '#eab308', x: 25, y: 55, count: 2 },
+  { type: '合规风险', color: '#eab308', x: 35, y: 48, count: 1 },
+  
+  { type: '战略风险', color: '#22c55e', x: 20, y: 75, count: 2 },
+  { type: '战略风险', color: '#22c55e', x: 28, y: 82, count: 1 },
+  
+  { type: '技术风险', color: '#3b82f6', x: 88, y: 15, count: 1 },
+];
+
 const riskAssessmentData = [
   { id: '1', name: '资金流动性风险', likelihood: 70, impact: 80, type: '财务风险' },
   { id: '2', name: '采购流程风险', likelihood: 60, impact: 50, type: '运营风险' },
@@ -616,45 +638,74 @@ export default function RiskManagementPage() {
                   <MapPin size={20} />
                   风险类型分布
                 </h3>
-                <div className="relative h-80">
-                  <svg viewBox="0 0 400 320" className="w-full h-full">
-                    <line x1="60" y1="280" x2="380" y2="280" stroke="#d1d5db" strokeWidth="2" />
-                    <line x1="60" y1="280" x2="60" y2="20" stroke="#d1d5db" strokeWidth="2" />
+                <div className="relative h-96">
+                  <svg viewBox="0 0 500 400" className="w-full h-full">
+                    <rect x="50" y="30" width="200" height="170" fill="#fef2f2" opacity="0.6" />
+                    <rect x="250" y="30" width="200" height="170" fill="#fef9c3" opacity="0.6" />
+                    <rect x="50" y="200" width="200" height="170" fill="#fef9c3" opacity="0.6" />
+                    <rect x="250" y="200" width="200" height="170" fill="#f0fdf4" opacity="0.6" />
                     
-                    {[0, 2, 4, 6, 8, 10].map((value, i) => (
-                      <g key={i}>
-                        <line x1="55" y1={280 - i * 43.33} x2="60" y2={280 - i * 43.33} stroke="#9ca3af" strokeWidth="1" />
-                        <text x="50" y={280 - i * 43.33 + 4} textAnchor="end" fill="#6b7280" fontSize="12">{value}</text>
-                      </g>
-                    ))}
+                    <text x="150" y="115" fill="#dc2626" textAnchor="middle" fontSize="12" fontWeight="500">高风险区</text>
+                    <text x="350" y="115" fill="#ca8a04" textAnchor="middle" fontSize="12" fontWeight="500">中风险区</text>
+                    <text x="150" y="285" fill="#ca8a04" textAnchor="middle" fontSize="12" fontWeight="500">中风险区</text>
+                    <text x="350" y="285" fill="#16a34a" textAnchor="middle" fontSize="12" fontWeight="500">低风险区</text>
                     
-                    {riskTypeData.map((item, index) => {
-                      const barWidth = 50;
-                      const gap = 12;
-                      const x = 80 + index * (barWidth + gap);
-                      const height = (item.value / 10) * 260;
+                    <line x1="50" y1="200" x2="450" y2="200" stroke="#d1d5db" strokeWidth="2" />
+                    <line x1="250" y1="30" x2="250" y2="370" stroke="#d1d5db" strokeWidth="2" />
+                    
+                    <text x="460" y="205" fill="#374151" fontSize="12" fontWeight="600">影响程度</text>
+                    <text x="250" y="20" fill="#374151" textAnchor="middle" fontSize="12" fontWeight="600">发生频率</text>
+                    
+                    <text x="50" y="215" fill="#6b7280" fontSize="10">低</text>
+                    <text x="250" y="215" fill="#6b7280" textAnchor="middle" fontSize="10">中</text>
+                    <text x="450" y="215" fill="#6b7280" textAnchor="end" fontSize="10">高</text>
+                    
+                    <text x="240" y="380" fill="#6b7280" textAnchor="end" fontSize="10">低</text>
+                    <text x="240" y="40" fill="#6b7280" textAnchor="end" fontSize="10">高</text>
+                    
+                    {riskTypeDistributionData.map((item, index) => {
+                      const x = 50 + (item.x / 100) * 400;
+                      const y = 370 - (item.y / 100) * 340;
                       return (
                         <g key={index}>
-                          <rect
-                            x={x}
-                            y={280 - height}
-                            width={barWidth}
-                            height={height}
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r={6 + item.count * 2}
                             fill={item.color}
-                            rx="4"
+                            opacity="0.8"
+                            stroke="white"
+                            strokeWidth="2"
                           />
-                          <text x={x + barWidth / 2} y={295} textAnchor="middle" fill="#6b7280" fontSize="10">
-                            {item.name}
-                          </text>
-                          <text x={x + barWidth / 2} y={280 - height - 8} textAnchor="middle" fill="#374151" fontSize="12" fontWeight="bold">
-                            {item.value}
-                          </text>
                         </g>
                       );
                     })}
-                    
-                    <text x="20" y="150" textAnchor="middle" fill="#6b7280" fontSize="12" transform="rotate(-90 20 150)">风险数量</text>
                   </svg>
+                </div>
+                
+                <div className="mt-6 border-t pt-4">
+                  <div className="flex flex-wrap gap-4 justify-center">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500" />
+                      <span className="text-sm text-gray-700">财务风险</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-orange-500" />
+                      <span className="text-sm text-gray-700">运营风险</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                      <span className="text-sm text-gray-700">合规风险</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                      <span className="text-sm text-gray-700">战略风险</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500" />
+                      <span className="text-sm text-gray-700">技术风险</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-xl p-6">
