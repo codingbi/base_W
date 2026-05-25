@@ -285,36 +285,29 @@ export default function RiskManagementPage() {
                   <div className="relative h-96">
                     <div className="absolute inset-0">
                       <svg viewBox="0 0 400 400" className="w-full h-full">
-                        {/* 背景区域 */}
                         <rect x="20" y="20" width="180" height="180" fill="#fef2f2" opacity="0.6" />
                         <rect x="200" y="20" width="180" height="180" fill="#fef9c3" opacity="0.6" />
                         <rect x="20" y="200" width="180" height="180" fill="#fef9c3" opacity="0.6" />
                         <rect x="200" y="200" width="180" height="180" fill="#f0fdf4" opacity="0.6" />
                         
-                        {/* 区域标签 */}
-                        <text x="110" y="110" className="text-xs fill-red-600 text-anchor="middle" fontWeight="500">高风险</text>
-                        <text x="290" y="110" className="text-xs fill-yellow-600 text-anchor="middle" fontWeight="500">中风险</text>
-                        <text x="110" y="290" className="text-xs fill-yellow-600 text-anchor="middle" fontWeight="500">中风险</text>
-                        <text x="290" y="290" className="text-xs fill-green-600 text-anchor="middle" fontWeight="500">低风险</text>
+                        <text x="110" y="110" fill="#dc2626" textAnchor="middle" fontSize="14" fontWeight="500">高风险</text>
+                        <text x="290" y="110" fill="#ca8a04" textAnchor="middle" fontSize="14" fontWeight="500">中风险</text>
+                        <text x="110" y="290" fill="#ca8a04" textAnchor="middle" fontSize="14" fontWeight="500">中风险</text>
+                        <text x="290" y="290" fill="#16a34a" textAnchor="middle" fontSize="14" fontWeight="500">低风险</text>
                         
-                        {/* 网格线 */}
                         <line x1="20" y1="200" x2="380" y2="200" stroke="#d1d5db" strokeWidth="2" />
                         <line x1="200" y1="20" x2="200" y2="380" stroke="#d1d5db" strokeWidth="2" />
                         
-                        {/* 坐标轴标签 */}
-                        <text x="385" y="205" className="text-sm fill-gray-700" fontWeight="600">可能性 (Likelihood)</text>
-                        <text x="200" y="15" className="text-sm fill-gray-700" text-anchor="middle" fontWeight="600">影响程度 (Impact)</text>
+                        <text x="385" y="205" fill="#374151" fontSize="14" fontWeight="600">可能性</text>
+                        <text x="200" y="15" fill="#374151" textAnchor="middle" fontSize="14" fontWeight="600">影响程度</text>
                         
-                        {/* 可能性刻度 */}
-                        <text x="20" y="215" className="text-xs fill-gray-500">低</text>
-                        <text x="200" y="215" className="text-xs fill-gray-500" text-anchor="middle">中</text>
-                        <text x="380" y="215" className="text-xs fill-gray-500" text-anchor="end">高</text>
+                        <text x="20" y="215" fill="#6b7280" fontSize="12">低</text>
+                        <text x="200" y="215" fill="#6b7280" textAnchor="middle" fontSize="12">中</text>
+                        <text x="380" y="215" fill="#6b7280" textAnchor="end" fontSize="12">高</text>
                         
-                        {/* 影响程度刻度 */}
-                        <text x="10" y="205" className="text-xs fill-gray-500" text-anchor="end">低</text>
-                        <text x="10" y="20" className="text-xs fill-gray-500" text-anchor="end">高</text>
+                        <text x="10" y="205" fill="#6b7280" textAnchor="end" fontSize="12">低</text>
+                        <text x="10" y="20" fill="#6b7280" textAnchor="end" fontSize="12">高</text>
                         
-                        {/* 风险点 */}
                         {riskAssessmentData.map((risk) => {
                           const color = risk.type === '财务风险' ? '#ef4444' : risk.type === '运营风险' ? '#f97316' : risk.type === '合规风险' ? '#eab308' : risk.type === '技术风险' ? '#3b82f6' : '#22c55e';
                           return (
@@ -331,7 +324,9 @@ export default function RiskManagementPage() {
                               <text
                                 x={20 + (risk.likelihood / 100) * 360}
                                 y={380 - (risk.impact / 100) * 360 + 4}
-                                className="text-xs fill-white text-anchor="middle"
+                                fill="white"
+                                textAnchor="middle"
+                                fontSize="10"
                                 fontWeight="bold"
                               >
                                 {risk.id}
@@ -343,7 +338,6 @@ export default function RiskManagementPage() {
                     </div>
                   </div>
                   
-                  {/* 图例 */}
                   <div className="mt-6 border-t pt-4">
                     <div className="flex flex-wrap gap-6 justify-center">
                       <div className="flex items-center gap-2">
@@ -369,7 +363,6 @@ export default function RiskManagementPage() {
                     </div>
                   </div>
                   
-                  {/* 风险点说明 */}
                   <div className="mt-4 bg-gray-50 rounded-lg p-4">
                     <h4 className="font-medium text-gray-900 mb-3">风险详情</h4>
                     <div className="space-y-2">
