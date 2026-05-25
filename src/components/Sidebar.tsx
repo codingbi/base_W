@@ -1,83 +1,132 @@
 import React from 'react';
+import { useAppStore } from '../store';
 import {
   LayoutDashboard,
   Shield,
   AlertTriangle,
-  DollarSign,
-  TrendingUp,
+  Calculator,
+  Wallet,
+  CreditCard,
   ShoppingCart,
-  Box,
-  Briefcase,
-  Award,
   FileText,
-  BarChart3,
+  TrendingUp,
+  Building2,
   Smartphone,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
 } from 'lucide-react';
-import { useAppStore } from '../store';
-import { cn } from '../lib/utils';
 
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-const menuItems: MenuItem[] = [
-  { id: 'portal', label: '系统门户', icon: <LayoutDashboard size={20} /> },
-  { id: 'internal-control', label: '单位层面内控', icon: <Shield size={20} /> },
-  { id: 'risk-management', label: '风险管理', icon: <AlertTriangle size={20} /> },
-  { id: 'budget-management', label: '预算管理', icon: <DollarSign size={20} /> },
-  { id: 'income-management', label: '收入管理', icon: <TrendingUp size={20} /> },
-  { id: 'expense-management', label: '支出管理', icon: <DollarSign size={20} /> },
-  { id: 'procurement-management', label: '采购管理', icon: <ShoppingCart size={20} /> },
-  { id: 'asset-management', label: '资产管理', icon: <Box size={20} /> },
-  { id: 'project-management', label: '项目管理', icon: <Briefcase size={20} /> },
-  { id: 'performance-management', label: '绩效管理', icon: <Award size={20} /> },
-  { id: 'contract-management', label: '合同管理', icon: <FileText size={20} /> },
-  { id: 'bi-reports', label: 'BI报表分析', icon: <BarChart3 size={20} /> },
-  { id: 'mobile-app', label: '内控移动应用', icon: <Smartphone size={20} /> },
+const menuItems = [
+  { id: 'portal', label: '工作门户', icon: LayoutDashboard },
+  { id: 'internal-control', label: '内控评价', icon: Shield },
+  { id: 'risk-management', label: '风险管理', icon: AlertTriangle },
+  { id: 'budget-management', label: '预算管理', icon: Calculator },
+  { id: 'income-management', label: '收支管理', icon: Wallet },
+  { id: 'expense-management', label: '费用报销', icon: CreditCard },
+  { id: 'procurement-management', label: '采购管理', icon: ShoppingCart },
+  { id: 'project-management', label: '项目管理', icon: FileText },
+  { id: 'contract-management', label: '合同管理', icon: FileText },
+  { id: 'asset-management', label: '资产管理', icon: Building2 },
+  { id: 'performance-management', label: '绩效评价', icon: TrendingUp },
+  { id: 'bi-reports', label: 'BI报表', icon: Activity },
+  { id: 'mobile-app', label: '移动应用', icon: Smartphone },
 ];
 
 export default function Sidebar() {
-  const { activePage, setActivePage, sidebarOpen } = useAppStore();
+  const { activePage, setActivePage, sidebarOpen, toggleSidebar } = useAppStore();
 
   return (
-    <aside
-      className={cn(
-        'bg-slate-900 text-white transition-all duration-300 flex flex-col',
+    <div
+      className={`${
         sidebarOpen ? 'w-64' : 'w-20'
-      )}
+      } bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white transition-all duration-300 ease-in-out relative flex flex-col`}
     >
-      {/* Logo */}
-      <div className="h-16 flex items-center justify-center border-b border-slate-700">
+      {/* Logo Section */}
+      <div className="p-6 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <Shield size={20} />
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg animate-pulse-glow">
+            <Shield className="w-6 h-6 text-white" />
           </div>
           {sidebarOpen && (
-            <span className="font-bold text-lg">内控系统</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                内控系统
+              </span>
+              <span className="text-xs text-slate-400">Internal Control</span>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Menu */}
-      <nav className="flex-1 py-4 space-y-1 px-3">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActivePage(item.id)}
-            className={cn(
-                'w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200',
-                activePage === item.id
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              )}
-          >
-            {item.icon}
-            {sidebarOpen && <span className="font-medium">{item.label}</span>}
-          </button>
-        ))}
+      {/* Navigation Menu */}
+      <nav className="flex-1 overflow-y-auto py-6 px-3 scrollbar-thin">
+        <div className="space-y-2">
+          {menuItems.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = activePage === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActivePage(item.id)}
+                className={`w-full group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105'
+                    : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                }`}
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                }}
+              >
+                {isActive && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl blur-lg opacity-30" />
+                )}
+                
+                <div className={`p-2 rounded-lg ${
+                  isActive
+                    ? 'bg-white/20'
+                    : 'bg-slate-700 group-hover:bg-slate-600'
+                } transition-all duration-300`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'animate-pulse' : ''}`} />
+                </div>
+                
+                {sidebarOpen && (
+                  <span className="font-medium flex-1 text-left">{item.label}</span>
+                )}
+                
+                {!sidebarOpen && (
+                  <div className="absolute left-full ml-2 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap shadow-xl z-50">
+                    {item.label}
+                    <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-8 border-transparent border-r-slate-800" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </nav>
-    </aside>
+
+      {/* Collapse Button */}
+      <div className="p-4 border-t border-slate-700/50">
+        <button
+          onClick={toggleSidebar}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/50 hover:bg-slate-700 rounded-xl transition-all duration-300 group"
+        >
+          {sidebarOpen ? (
+            <>
+              <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
+              <span className="text-sm text-slate-400 group-hover:text-white transition-colors">收起菜单</span>
+            </>
+          ) : (
+            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
+          )}
+        </button>
+      </div>
+
+      {/* Decorative Elements */}
+      <div className="absolute bottom-20 right-0 w-32 h-32 bg-gradient-to-t from-indigo-600/20 to-transparent rounded-full blur-2xl" />
+      <div className="absolute top-32 left-0 w-24 h-24 bg-gradient-to-b from-purple-600/20 to-transparent rounded-full blur-2xl" />
+    </div>
   );
 }
