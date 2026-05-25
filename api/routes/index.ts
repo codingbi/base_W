@@ -47,6 +47,26 @@ router.get('/contracts', (req, res) => {
   res.json(response);
 });
 
+router.post('/contracts', (req, res) => {
+  const data = getData();
+  const newContract = {
+    id: `contract-${Date.now()}`,
+    partyA: '本单位',
+    ...req.body,
+    status: 'draft',
+    performanceBond: req.body.performanceBond || 0,
+    warrantyBond: req.body.warrantyBond || 0,
+    paidAmount: 0,
+    paymentSchedule: [],
+  };
+  
+  data.contracts.push(newContract);
+  updateData({ contracts: data.contracts });
+  
+  const response: ApiResponse<any> = { success: true, data: newContract, message: '合同创建成功' };
+  res.json(response);
+});
+
 router.get('/contract-templates', (req, res) => {
   const data = getData();
   const response: ApiResponse<any> = { success: true, data: data.contractTemplates };

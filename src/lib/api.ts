@@ -26,6 +26,11 @@ export const api = {
   getBudgets: () => request<ApiResponse<Budget[]>>('/budgets'),
   getIncomeBudgets: () => request<ApiResponse<IncomeBudget[]>>('/income-budgets'),
   getContracts: () => request<ApiResponse<Contract[]>>('/contracts'),
+  createContract: (contract: Omit<Contract, 'id' | 'partyA' | 'status' | 'performanceBond' | 'warrantyBond' | 'paidAmount' | 'paymentSchedule'>) => 
+    request<ApiResponse<Contract>>('/contracts', { 
+      method: 'POST', 
+      body: JSON.stringify(contract) 
+    }),
   getContractTemplates: () => request<ApiResponse<ContractTemplate[]>>('/contract-templates'),
   getExpenses: () => request<ApiResponse<Expense[]>>('/expenses'),
   approveExpense: (id: string) => request<ApiResponse<Expense>>(`/expenses/${id}/approve`, { method: 'POST' }),

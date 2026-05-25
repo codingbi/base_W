@@ -16,6 +16,8 @@ export default function ContractManagementPage() {
     endDate: '',
     templateId: '',
   });
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -72,6 +74,64 @@ export default function ContractManagementPage() {
   const filteredContracts = contracts.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleCreateContract = async () => {
+    if (!newContract.name.trim()) {
+      setError('请输入合同名称');
+      return;
+    }
+    if (!newContract.partyB.trim()) {
+      setError('请输入乙方名称');
+      return;
+    }
+    if (newContract.amount <= 0) {
+      setError('请输入有效的合同金额');
+      return;
+    }
+    if (!newContract.startDate) {
+      setError('请选择开始日期');
+      return;
+    }
+    if (!newContract.endDate) {
+      setError('请选择结束日期');
+      return;
+    }
+    if (newContract.startDate > newContract.endDate) {
+      setError('结束日期不能早于开始日期');
+      return;
+    }
+
+    setCreating(true);
+    setError(null);
+    try {
+      const response = await api.createContract({
+        name: newContract.name,
+        partyB: newContract.partyB,
+        amount: newContract.amount,
+        startDate: newContract.startDate,
+        endDate: newContract.endDate,
+        templateId: newContract.templateId,
+      });
+      
+      if (response.success) {
+        setContracts([...contracts, response.data]);
+        setShowModal(null);
+        setNewContract({
+          name: '',
+          partyB: '',
+          amount: 0,
+          startDate: '',
+          endDate: '',
+          templateId: '',
+        });
+      }
+    } catch (err) {
+      setError('创建合同失败，请重试');
+      console.error('Failed to create contract:', err);
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -413,13 +473,19 @@ export default function ContractManagementPage() {
           <div className="bg-white rounded-xl p-6 w-full max-w-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">新建合同</h3>
-              <button onClick={() => setShowModal(null)} className="text-gray-500 hover:text-gray-700">
+              <button onClick={() => { setShowModal(null); setError(null); }} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
               </button>
             </div>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                <AlertCircle size={18} />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">合同名称</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">合同名称 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={newContract.name}
@@ -429,7 +495,7 @@ export default function ContractManagementPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">乙方名称</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">乙方名称 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   value={newContract.partyB}
@@ -440,13 +506,14 @@ export default function ContractManagementPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">合同金额</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">合同金额 <span className="text-red-500">*</span></label>
                   <input
                     type="number"
-                    value={newContract.amount}
+                    value={newContract.amount || ''}
                     onChange={(e) => setNewContract({ ...newContract, amount: Number(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="输入金额"
+                    min="0"
                   />
                 </div>
                 <div>
@@ -463,12 +530,45 @@ export default function ContractManagementPage() {
                   </select>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <button onClick={() => setShowModal(null)} className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">开始日期 <span className="text-red-500">*</span></label>
+                  <input
+                    type="date"
+                    value={newContract.startDate}
+                    onChange={(e) => setNewContract({ ...newContract, startDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">结束日期 <span className="text-red-500">*</span></label>
+                  <input
+                    type="date"
+                    value={newContract.endDate}
+                    onChange={(e) => setNewContract({ ...newContract, endDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button 
+                  onClick={() => { setShowModal(null); setError(null); }} 
+                  className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100"
+                  disabled={creating}
+                >
                   取消
                 </button>
-                <button onClick={() => setShowModal(null)} className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                  创建合同
+                <button 
+                  onClick={handleCreateContract} 
+                  className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  disabled={creating}
+                >
+                  {creating ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      创建中...
+                    </>
+                  ) : '创建合同'}
                 </button>
               </div>
             </div>
