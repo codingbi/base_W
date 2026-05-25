@@ -613,29 +613,48 @@ export default function RiskManagementPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-gray-50 rounded-xl p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <PieChart size={20} />
-                  风险类型统计
+                  <MapPin size={20} />
+                  风险类型分布
                 </h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RePieChart>
-                      <Pie
-                        data={riskTypeData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={80}
-                        dataKey="value"
-                        nameKey="name"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {riskTypeData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RePieChart>
-                  </ResponsiveContainer>
+                <div className="relative h-80">
+                  <svg viewBox="0 0 400 320" className="w-full h-full">
+                    <line x1="60" y1="280" x2="380" y2="280" stroke="#d1d5db" strokeWidth="2" />
+                    <line x1="60" y1="280" x2="60" y2="20" stroke="#d1d5db" strokeWidth="2" />
+                    
+                    {[0, 2, 4, 6, 8, 10].map((value, i) => (
+                      <g key={i}>
+                        <line x1="55" y1={280 - i * 43.33} x2="60" y2={280 - i * 43.33} stroke="#9ca3af" strokeWidth="1" />
+                        <text x="50" y={280 - i * 43.33 + 4} textAnchor="end" fill="#6b7280" fontSize="12">{value}</text>
+                      </g>
+                    ))}
+                    
+                    {riskTypeData.map((item, index) => {
+                      const barWidth = 50;
+                      const gap = 12;
+                      const x = 80 + index * (barWidth + gap);
+                      const height = (item.value / 10) * 260;
+                      return (
+                        <g key={index}>
+                          <rect
+                            x={x}
+                            y={280 - height}
+                            width={barWidth}
+                            height={height}
+                            fill={item.color}
+                            rx="4"
+                          />
+                          <text x={x + barWidth / 2} y={295} textAnchor="middle" fill="#6b7280" fontSize="10">
+                            {item.name}
+                          </text>
+                          <text x={x + barWidth / 2} y={280 - height - 8} textAnchor="middle" fill="#374151" fontSize="12" fontWeight="bold">
+                            {item.value}
+                          </text>
+                        </g>
+                      );
+                    })}
+                    
+                    <text x="20" y="150" textAnchor="middle" fill="#6b7280" fontSize="12" transform="rotate(-90 20 150)">风险数量</text>
+                  </svg>
                 </div>
               </div>
               <div className="bg-gray-50 rounded-xl p-6">
