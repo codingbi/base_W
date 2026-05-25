@@ -281,47 +281,131 @@ export default function RiskManagementPage() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">风险坐标图</h3>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="relative h-64">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <svg viewBox="0 0 200 200" className="w-full h-full">
-                        <line x1="20" y1="100" x2="180" y2="100" stroke="#e5e7eb" strokeWidth="1" />
-                        <line x1="100" y1="20" x2="100" y2="180" stroke="#e5e7eb" strokeWidth="1" />
-                        <text x="185" y="105" className="text-xs fill-gray-500">可能性</text>
-                        <text x="95" y="10" className="text-xs fill-gray-500">影响程度</text>
-                        <text x="35" y="105" className="text-xs fill-gray-400">低</text>
-                        <text x="170" y="105" className="text-xs fill-gray-400">高</text>
-                        <text x="95" y="35" className="text-xs fill-gray-400">高</text>
-                        <text x="95" y="185" className="text-xs fill-gray-400">低</text>
-                        {riskAssessmentData.map((risk) => (
-                          <circle
-                            key={risk.id}
-                            cx={20 + (risk.likelihood / 100) * 160}
-                            cy={180 - (risk.impact / 100) * 160}
-                            r="8"
-                            fill={risk.type === '财务风险' ? '#ef4444' : risk.type === '运营风险' ? '#f97316' : risk.type === '合规风险' ? '#eab308' : risk.type === '技术风险' ? '#3b82f6' : '#22c55e'}
-                            opacity="0.8"
-                          />
-                        ))}
+                <div className="bg-white rounded-xl p-4 border border-gray-200">
+                  <div className="relative h-96">
+                    <div className="absolute inset-0">
+                      <svg viewBox="0 0 400 400" className="w-full h-full">
+                        {/* 背景区域 */}
+                        <rect x="20" y="20" width="180" height="180" fill="#fef2f2" opacity="0.6" />
+                        <rect x="200" y="20" width="180" height="180" fill="#fef9c3" opacity="0.6" />
+                        <rect x="20" y="200" width="180" height="180" fill="#fef9c3" opacity="0.6" />
+                        <rect x="200" y="200" width="180" height="180" fill="#f0fdf4" opacity="0.6" />
+                        
+                        {/* 区域标签 */}
+                        <text x="110" y="110" className="text-xs fill-red-600 text-anchor="middle" fontWeight="500">高风险</text>
+                        <text x="290" y="110" className="text-xs fill-yellow-600 text-anchor="middle" fontWeight="500">中风险</text>
+                        <text x="110" y="290" className="text-xs fill-yellow-600 text-anchor="middle" fontWeight="500">中风险</text>
+                        <text x="290" y="290" className="text-xs fill-green-600 text-anchor="middle" fontWeight="500">低风险</text>
+                        
+                        {/* 网格线 */}
+                        <line x1="20" y1="200" x2="380" y2="200" stroke="#d1d5db" strokeWidth="2" />
+                        <line x1="200" y1="20" x2="200" y2="380" stroke="#d1d5db" strokeWidth="2" />
+                        
+                        {/* 坐标轴标签 */}
+                        <text x="385" y="205" className="text-sm fill-gray-700" fontWeight="600">可能性 (Likelihood)</text>
+                        <text x="200" y="15" className="text-sm fill-gray-700" text-anchor="middle" fontWeight="600">影响程度 (Impact)</text>
+                        
+                        {/* 可能性刻度 */}
+                        <text x="20" y="215" className="text-xs fill-gray-500">低</text>
+                        <text x="200" y="215" className="text-xs fill-gray-500" text-anchor="middle">中</text>
+                        <text x="380" y="215" className="text-xs fill-gray-500" text-anchor="end">高</text>
+                        
+                        {/* 影响程度刻度 */}
+                        <text x="10" y="205" className="text-xs fill-gray-500" text-anchor="end">低</text>
+                        <text x="10" y="20" className="text-xs fill-gray-500" text-anchor="end">高</text>
+                        
+                        {/* 风险点 */}
+                        {riskAssessmentData.map((risk) => {
+                          const color = risk.type === '财务风险' ? '#ef4444' : risk.type === '运营风险' ? '#f97316' : risk.type === '合规风险' ? '#eab308' : risk.type === '技术风险' ? '#3b82f6' : '#22c55e';
+                          return (
+                            <g key={risk.id}>
+                              <circle
+                                cx={20 + (risk.likelihood / 100) * 360}
+                                cy={380 - (risk.impact / 100) * 360}
+                                r="12"
+                                fill={color}
+                                opacity="0.9"
+                                stroke="white"
+                                strokeWidth="2"
+                              />
+                              <text
+                                x={20 + (risk.likelihood / 100) * 360}
+                                y={380 - (risk.impact / 100) * 360 + 4}
+                                className="text-xs fill-white text-anchor="middle"
+                                fontWeight="bold"
+                              >
+                                {risk.id}
+                              </text>
+                            </g>
+                          );
+                        })}
                       </svg>
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-4 text-sm">
+                  </div>
+                  
+                  {/* 图例 */}
+                  <div className="mt-6 border-t pt-4">
+                    <div className="flex flex-wrap gap-6 justify-center">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500" />
-                        <span className="text-gray-600">财务风险</span>
+                        <div className="w-4 h-4 rounded-full bg-red-500" />
+                        <span className="text-sm text-gray-700">财务风险</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-orange-500" />
-                        <span className="text-gray-600">运营风险</span>
+                        <div className="w-4 h-4 rounded-full bg-orange-500" />
+                        <span className="text-sm text-gray-700">运营风险</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                        <span className="text-gray-600">合规风险</span>
+                        <div className="w-4 h-4 rounded-full bg-yellow-500" />
+                        <span className="text-sm text-gray-700">合规风险</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500" />
-                        <span className="text-gray-600">技术风险</span>
+                        <div className="w-4 h-4 rounded-full bg-blue-500" />
+                        <span className="text-sm text-gray-700">技术风险</span>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-green-500" />
+                        <span className="text-sm text-gray-700">战略风险</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 风险点说明 */}
+                  <div className="mt-4 bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-3">风险详情</h4>
+                    <div className="space-y-2">
+                      {riskAssessmentData.map((risk) => {
+                        const color = risk.type === '财务风险' ? '#ef4444' : risk.type === '运营风险' ? '#f97316' : risk.type === '合规风险' ? '#eab308' : risk.type === '技术风险' ? '#3b82f6' : '#22c55e';
+                        const level = risk.likelihood * risk.impact > 5000 ? 'high' : risk.likelihood * risk.impact > 2500 ? 'medium' : 'low';
+                        return (
+                          <div key={risk.id} className="flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0">
+                            <div className="flex items-center gap-3">
+                              <div 
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                                style={{ backgroundColor: color }}
+                              >
+                                {risk.id}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{risk.name}</p>
+                                <p className="text-xs text-gray-500">{risk.type}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <div className="text-center">
+                                <p className="text-xs text-gray-500">可能性</p>
+                                <p className="text-sm font-semibold text-gray-900">{risk.likelihood}%</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="text-xs text-gray-500">影响程度</p>
+                                <p className="text-sm font-semibold text-gray-900">{risk.impact}%</p>
+                              </div>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${level === 'high' ? 'bg-red-100 text-red-800' : level === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                                {level === 'high' ? '高风险' : level === 'medium' ? '中风险' : '低风险'}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
