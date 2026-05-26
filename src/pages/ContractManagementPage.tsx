@@ -124,9 +124,12 @@ export default function ContractManagementPage() {
           endDate: '',
           templateId: '',
         });
+      } else {
+        setError(response.message || '创建合同失败');
       }
     } catch (err) {
-      setError('创建合同失败，请重试');
+      const errorMsg = err instanceof Error ? err.message : '创建合同失败，请重试';
+      setError(errorMsg);
       console.error('Failed to create contract:', err);
     } finally {
       setCreating(false);
