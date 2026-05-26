@@ -2,7 +2,6 @@ import React from 'react';
 import { useAppStore } from './store';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import { ApiStatus } from './components/ApiStatus';
 import PortalPage from './pages/PortalPage';
 import BudgetManagementPage from './pages/BudgetManagementPage';
 import ExpenseManagementPage from './pages/ExpenseManagementPage';
@@ -60,7 +59,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <ApiStatus />
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
